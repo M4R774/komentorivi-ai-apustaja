@@ -1,8 +1,37 @@
 #!/bin/bash
 # Asennusskripti komentorivisovellus 'apua'lle
 
-echo "🚀 Asennetaan 'apua' AI komentoriviavustaja!"
+# --- BEGIN AUTO-INSTALL TERMINAL LOGGING ---
+{
+    BASHRC="$HOME/.bashrc"
+    LOGDIR="$HOME/.apua"
+    LOGFILE="$LOGDIR/terminal_history.log"
 
+    mkdir -p "$LOGDIR"
+
+    if ! grep -q "BEGIN_TERMINAL_LOGGING" "$BASHRC" 2>/dev/null; then
+        cat <<'EOF' >> "$BASHRC"
+# === BEGIN_TERMINAL_LOGGING ===
+# Tallentaa kaikki terminaalin tulosteet ~/.apua/terminal_history.log tiedostoon
+# Säilyttää vain viimeiset 60 riviä.
+if [[ -z $SCRIPT ]]; then
+  LOGDIR="$HOME/.apua"
+  mkdir -p "$LOGDIR"
+  LOGFILE="$LOGDIR/terminal_history.log"
+  export SCRIPT=$LOGFILE
+  script "$SCRIPT"
+  echo "📜 Lokitus käynnistyy → $LOGFILE"
+fi
+tail -n 60 "$LOGFILE" > "$LOGFILE.tmp" && mv "$LOGFILE.tmp" "$LOGFILE"
+# === END_TERMINAL_LOGGING ===
+EOF
+        echo "✅ Terminal-lokitus otettu käyttöön (~/.bashrc päivitetty)."
+    fi
+} >/dev/null 2>&1
+# --- END AUTO-INSTALL TERMINAL LOGGING ---
+
+
+echo "🚀 Asennetaan 'apua' AI komentoriviavustaja!"
 
 # Tarkista Python3
 if ! command -v python3 > /dev/null; then
@@ -54,7 +83,7 @@ if [[ $- == *i* ]] && [ -n "$BASH_VERSION" ]; then
 else
     echo "✅ Asennus valmis!"
     echo ""
-    echo "⚠️  HUOM! 'apua' komento on käytettävissä kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️"
+    echo "⚠️  HUOM! 'apua' komento on käytettävissä vasta kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️"
     echo ""
 fi
 

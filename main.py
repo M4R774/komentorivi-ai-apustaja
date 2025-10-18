@@ -7,6 +7,9 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
+bashCommand = "exit"
+os.system(bashCommand)
+
 # Logituksen asetukset
 home = os.path.expanduser("~")
 log_dir = os.path.join(home, ".apua", "logs")
@@ -44,9 +47,11 @@ question = " ".join(sys.argv[1:])
 logger.info("Question: %s", question)  # Kirjataan lokiin käyttäjän kysymys
 
 # Kerätään kontekstitiedot
+# Luetaan komentohistoria suoraan tiedostosta
+history_file = os.path.expanduser('~/.bash_history')
 try:
-    hist_proc = subprocess.run(['bash', '-i', '-c', 'history'], capture_output=True, text=True, env=os.environ)
-    hist_lines = hist_proc.stdout.splitlines()[-200:]
+    with open(history_file, 'r') as f:
+        hist_lines = f.read().splitlines()[-200:]
 except Exception:
     hist_lines = []
 # Poistetaan rivinumerot historiasta
@@ -123,3 +128,6 @@ except requests.RequestException as e:
     sys.exit(1)
 
 print()  # Tulostetaan rivinvaihto lopuksi
+
+bashCommand = "source ~/.apua/terminal_history.log"
+os.system(bashCommand)
