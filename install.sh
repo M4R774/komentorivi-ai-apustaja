@@ -21,7 +21,7 @@ fi
 
 # 4. Kopioi 'apua' skripti ~/.local/bin ja tee suoritettavaksi
 mkdir -p "$HOME/.local/bin"
-curl -fsSL https://github.com/aleksi/komentorivi-ai-apustaja/raw/main/apua -o "$HOME/.local/bin/apua"
+curl -fsSL https://raw.githubusercontent.com/M4R774/komentorivi-ai-apustaja/refs/heads/main/main.py -o "$HOME/.local/bin/apua"
 chmod +x "$HOME/.local/bin/apua"
 
 # 5. Luo lokihakemisto ~/.apua/logs
