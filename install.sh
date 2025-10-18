@@ -54,7 +54,7 @@ if [[ $- == *i* ]] && [ -n "$BASH_VERSION" ]; then
 else
     echo "✅ Asennus valmis!"
     echo ""
-    echo "⚠️ HUOM! 'apua' komento on käytettävissä kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️"
+    echo "⚠️  HUOM! 'apua' komento on käytettävissä kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️"
     echo ""
 fi
 
