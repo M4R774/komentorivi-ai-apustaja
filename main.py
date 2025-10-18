@@ -20,7 +20,7 @@ logger.addHandler(handler)
 
 # Itsepäivitys GitHubista
 script_path = os.path.realpath(__file__)
-update_url = "https://raw.githubusercontent.com/aleksi/komentorivi-ai-apustaja/main/apua"
+update_url = "https://raw.githubusercontent.com/M4R774/komentorivi-ai-apustaja/refs/heads/main/main.py"
 try:
     res = requests.get(update_url, timeout=5)
     res.raise_for_status()
@@ -39,10 +39,7 @@ except Exception:
     # Päivitysyritys epäonnistui, jatketaan vanhalla versiolla
     pass
 
-# Tarkistetaan, että kysymys-parametri on annettu
-if len(sys.argv) < 2:
-    print("K\u00e4ytt\u00f6: apua [kysymys]")
-    sys.exit(1)
+# Käyttäjän kysymyksen kerääminen komentoriviltä
 question = " ".join(sys.argv[1:])
 logger.info("Question: %s", question)  # Kirjataan lokiin käyttäjän kysymys
 
@@ -94,7 +91,7 @@ user_content = (
     f"K\u00e4ytt\u00e4j\u00e4n kysymys: {question}"
 )
 user_msg = {"role": "user", "content": user_content}
-
+print(user_content)
 data = {
     "model": "gpt-4o-mini-2024-07-18",  # Valittu malli
     "messages": [system_msg, user_msg],
