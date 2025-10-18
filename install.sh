@@ -52,12 +52,14 @@ if [[ $- == *i* ]] && [ -n "$BASH_VERSION" ]; then
     source "$shell_profile"
     echo "✅ Kaikki on valmista! 'apua' komento on nyt käytettävissä. 🎉"
 else
-    echo "✅ Asennus valmis!" 
+    echo "✅ Asennus valmis!"
+    echo ""
     echo "⚠️ HUOM! 'apua' komento on käytettävissä kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️"
+    echo ""
 fi
 
 # Tulosta käyttöohjeet
 echo "💡 Käyttö:"
-echo "Kirjoita vain 'apua' ja tekoäly vastaa!"
-echo "Voit myös antaa lisätietoja esim.: 'apua mitä tapahtuu? 🆘'"
-echo "Tekoäly saa automaattisesti ruudulla näkyvän komentorivihistorian, nykyisen työskentelykansion, aiemmin suoritetut komentorivikomennot ja yleisiä tietoja järjestelmän tilasta kontekstiksi."
+echo "- Kirjoita vain 'apua' ja tekoäly vastaa!"
+echo "- Voit myös antaa lisätietoja esim.: 'apua mitä tapahtuu? 🆘'"
+echo "- Tekoäly saa automaattisesti ruudulla näkyvän komentorivihistorian, nykyisen työskentelykansion, aiemmin suoritetut komentorivikomennot ja yleisiä tietoja järjestelmän tilasta kontekstiksi."
