@@ -9,14 +9,15 @@ import re
 from collections import deque
 
 import urllib.request
-import json
 
 # Get terminal output
 def get_terminal_output_history(filepath: str, rows: int = 50) -> str:
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         bottom_rows = deque(f, maxlen=rows)
-    without_ansi_chars = ''.join(ansi_escape.sub('', row) for row in bottom_rows)
+    # Jätetään 2 viimeisintä riviä pois
+    rows_to_use = list(bottom_rows)[:-2] if len(bottom_rows) > 2 else []
+    without_ansi_chars = ''.join(ansi_escape.sub('', row) for row in rows_to_use)
     return without_ansi_chars
 filepath = os.path.expanduser('~/.apua/terminal_history.log')
 terminal_history = get_terminal_output_history(filepath)
@@ -58,18 +59,14 @@ question = " ".join(sys.argv[1:])
 logger.info("User prompt: %s", question)
 
 try:
-    ls_proc = subprocess.run(['ls', '-ls'], capture_output=True, text=True)
+    ls_proc = subprocess.run(['ls', '-A'], capture_output=True, text=True)
     ls_lines = ls_proc.stdout.splitlines()[:80]
 except Exception:
     ls_lines = []
 ls_list = "\n".join(ls_lines)
 
 # ENV
-desktop_session = os.environ.get('DESKTOP_SESSION','')
-term = os.environ.get('TERM', '')
 shell = os.environ.get('SHELL', '')
-path = os.environ.get('PATH', '')
-user = os.environ.get('USER', '')
 pwd = os.environ.get('PWD', '')
 
 # Prompt
@@ -78,15 +75,14 @@ from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUs
 system_msg = ChatCompletionSystemMessageParam(
     role="system",
     content=(
-        "Olet komentorivillä toimiva 'apua' tekoälysovellus, joka avustaa aloittelevaa käyttäjää komentorivin käytössä.\n\n"
-        "Saat kontekstiksi kaikki käyttäjän ruudulla näkyvät tulosteet, hakemistolistauksen ja muutamia ympäristömuuttujia käyttäjän kysymyksen lisäksi.\n\n"
-        "Auta käyttäjää etenemään. Vastaa mahdollisimman lyhyesti. Selkeytä viestejäsi emojeilla, jotta komentorivi ei olisi niin pelottava, vaan olisi hauska."
+        "Olet Linux komentorivillä toimiva 'apua' tekoälysovellus, joka avustaa aloittelevaa käyttäjää komentorivin käytössä.\n\n"
+        "Auta käyttäjää etenemään. Vastaa mahdollisimman lyhyesti. Markdown muotoilu EI käytössä. Et pysty suorittamaan komentoja itsenäisesti."
     )
 )
 user_content = (
     f"Konteksti:\n"
     f"- Hakemiston tiedostot:\n{ls_list}\n\n"
-    f"- Ympäristömuuttujat: DESKTOP_SESSION={desktop_session}, TERM={term}, SHELL={shell}, PATH={path}, USER={user} PWD={pwd}\n"
+    f"- Ympäristömuuttujat: SHELL={shell}, PWD={pwd}\n"
     f"- Terminaalin aiemmat tulosteet:\n{terminal_history}\n\n"
     f"Käyttäjän viesti sinulle:\n\n{question}"
 )
@@ -104,7 +100,7 @@ client = openai.OpenAI(
 
 try:
     response = client.chat.completions.create(
-        model="gpt-5-chat",
+        model="gpt-5-mini",
         messages=[system_msg, user_msg],
         stream=True
     )
