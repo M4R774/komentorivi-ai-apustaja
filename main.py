@@ -118,7 +118,8 @@ try:
             if content:
                 if not got_content:
                     stop_event.set()
-                    print("\r", end="")  # Poista latauspalkki
+                    # Poista spinneri peittämällä se tarpeeksi pitkällä rivillä
+                    print("\r" + " " * 60 + "\r", end="")
                     sys.stdout.flush()
                     got_content = True
                 print(content, end="", flush=True)
