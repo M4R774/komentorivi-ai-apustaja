@@ -57,10 +57,6 @@ curl -fsSL https://raw.githubusercontent.com/M4R774/komentorivi-ai-apustaja/refs
 chmod +x "$HOME/.local/bin/apua"
 echo "✅ 'apua' komento ladattu hakemistoon ~/.local/bin/apua"
 
-# Luo lokihakemisto ~/.apua/logs
-mkdir -p "$HOME/.apua/logs"
-echo "📁 Lokit löytyvät hakemistosta ~/.apua/logs."
-
 # Lisää ~/.local/bin PATHiin, jos ei jo ole
 if [ -n "$BASH_VERSION" ]; then
     shell_profile="$HOME/.bashrc"
