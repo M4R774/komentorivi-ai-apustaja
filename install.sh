@@ -45,10 +45,10 @@ if ! command -v pip3 > /dev/null; then
     sudo apt-get install -y python3-pip > /dev/null || { echo "❌ pip3-asennus epäonnistui"; exit 1; }
 fi
 
-# Asenna Python-kirjasto requests, jos puuttuu
-if ! python3 -c "import requests" &> /dev/null; then
-    echo "🔗 Python-kirjasto 'requests' puuttuu, asennetaan..."
-    pip3 install --user requests > /dev/null || { echo "❌ requests-kirjaston asennus epäonnistui"; exit 1; }
+# Asenna Python-kirjasto openai, jos puuttuu
+if ! python3 -c "import openai" &> /dev/null; then
+    echo "🔗 Python-kirjasto 'openai' puuttuu, asennetaan..."
+    pip3 install --user openai > /dev/null || { echo "❌ openai-kirjaston asennus epäonnistui"; exit 1; }
 fi
 
 # Kopioi 'apua' skripti ~/.local/bin ja tee suoritettavaksi

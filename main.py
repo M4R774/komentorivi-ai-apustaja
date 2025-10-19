@@ -2,15 +2,26 @@
 import os
 import sys
 import subprocess
-import requests
-import json
+import openai
 import logging
 from logging.handlers import RotatingFileHandler
+import re
+from collections import deque
 
-bashCommand = "exit"
-os.system(bashCommand)
+import urllib.request
+import json
 
-# Logituksen asetukset
+# Get terminal output
+def get_terminal_output_history(filepath: str, rows: int = 50) -> str:
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        bottom_rows = deque(f, maxlen=rows)
+    without_ansi_chars = ''.join(ansi_escape.sub('', row) for row in bottom_rows)
+    return without_ansi_chars
+filepath = os.path.expanduser('~/.apua/terminal_history.log')
+terminal_history = get_terminal_output_history(filepath)
+
+# Logging
 home = os.path.expanduser("~")
 log_dir = os.path.join(home, ".apua", "logs")
 os.makedirs(log_dir, exist_ok=True)
@@ -21,113 +32,88 @@ handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
 handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
 logger.addHandler(handler)
 
-# Itsepäivitys GitHubista
-script_path = os.path.realpath(__file__)
-update_url = "https://raw.githubusercontent.com/M4R774/komentorivi-ai-apustaja/refs/heads/main/main.py"
-try:
-    res = requests.get(update_url, timeout=5)
-    res.raise_for_status()
-    new_code = res.text
-    with open(script_path, 'r') as f:
-        old_code = f.read()
-    if new_code != old_code:
-        # Kirjoitetaan uusi versio tiedostoon ja uudelleenkäynnistetään
-        temp_path = script_path + ".new"
-        with open(temp_path, "w") as f:
-            f.write(new_code)
-        os.replace(temp_path, script_path)
-        print("\nP\u00e4ivit\u00e4\u00e4n 'apua' uuteen versioon...\n")
-        os.execv(sys.executable, [sys.executable, script_path] + sys.argv[1:])
-except Exception:
-    # Päivitysyritys epäonnistui, jatketaan vanhalla versiolla
-    pass
+import urllib.request
+# Self update
+def self_update_from_github():
+    script_path = os.path.realpath(__file__)
+    update_url = "https://raw.githubusercontent.com/M4R774/komentorivi-ai-apustaja/refs/heads/main/main.py"
+    try:
+        with urllib.request.urlopen(update_url, timeout=5) as response:
+            new_code = response.read().decode('utf-8')
+        with open(script_path, 'r') as f:
+            old_code = f.read()
+        if new_code != old_code:
+            temp_path = script_path + ".new"
+            with open(temp_path, "w") as f:
+                f.write(new_code)
+            os.replace(temp_path, script_path)
+            print("\nP\u00e4ivit\u00e4\u00e4n 'apua' uuteen versioon...\n")
+            os.execv(sys.executable, [sys.executable, script_path] + sys.argv[1:])
+    except Exception:
+        pass
+# self_update_from_github()
 
 # Käyttäjän kysymyksen kerääminen komentoriviltä
 question = " ".join(sys.argv[1:])
-logger.info("Question: %s", question)  # Kirjataan lokiin käyttäjän kysymys
-
-# Kerätään kontekstitiedot
-# Luetaan komentohistoria suoraan tiedostosta
-history_file = os.path.expanduser('~/.bash_history')
-try:
-    with open(history_file, 'r') as f:
-        hist_lines = f.read().splitlines()[-200:]
-except Exception:
-    hist_lines = []
-# Poistetaan rivinumerot historiasta
-history_cmds = []
-for line in hist_lines:
-    parts = line.strip().split(None, 1)
-    cmd = parts[1] if len(parts) > 1 else parts[0]
-    history_cmds.append(cmd)
-history_str = "\n".join(history_cmds)
-
-cwd = os.getcwd()
+logger.info("User prompt: %s", question)
 
 try:
-    ls_proc = subprocess.run(['ls', '-A'], capture_output=True, text=True)
+    ls_proc = subprocess.run(['ls', '-ls'], capture_output=True, text=True)
     ls_lines = ls_proc.stdout.splitlines()[:80]
 except Exception:
     ls_lines = []
 ls_list = "\n".join(ls_lines)
 
-lang = os.environ.get('LANG', '')
-shell = os.environ.get('SHELL', '')
+# ENV
+desktop_session = os.environ.get('DESKTOP_SESSION','')
 term = os.environ.get('TERM', '')
+shell = os.environ.get('SHELL', '')
+path = os.environ.get('PATH', '')
+user = os.environ.get('USER', '')
+pwd = os.environ.get('PWD', '')
 
-# Valmistellaan POST-pyyntö LLM7.io:lle (OpenAI-yhteensopiva rajapinta)
-api_url = "https://api.llm7.io/v1/chat/completions"
-headers = {
-    "Content-Type": "application/json",
-    "Accept": "text/event-stream"
-}
-# Roolit: järjestelmä (ohjeistus) ja käyttäjä (kysymys + konteksti)
-system_msg = {
-    "role": "system",
-    "content": ("Olet komentorivillä toimiva tekoälyavustaja. Vastaat suomeksi "
-                "käyttäjän esittämiin kysymyksiin hyödyntäen annetun ympäristön kontekstin mukaisia tietoja.")
-}
+# Prompt
+from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
+
+system_msg = ChatCompletionSystemMessageParam(
+    role="system",
+    content=(
+        "Olet komentorivillä toimiva 'apua' tekoälysovellus, joka avustaa aloittelevaa käyttäjää komentorivin käytössä.\n\n"
+        "Saat kontekstiksi kaikki käyttäjän ruudulla näkyvät tulosteet, hakemistolistauksen ja muutamia ympäristömuuttujia käyttäjän kysymyksen lisäksi.\n\n"
+        "Auta käyttäjää etenemään. Vastaa mahdollisimman lyhyesti. Selkeytä viestejäsi emojeilla, jotta komentorivi ei olisi niin pelottava, vaan olisi hauska."
+    )
+)
 user_content = (
     f"Konteksti:\n"
-    f"- Hakemisto: {cwd}\n"
-    f"- ls -A -lista:\n{ls_list}\n"
-    f"- Ympäristömuuttujat: LANG={lang}, SHELL={shell}, TERM={term}\n"
-    f"- Viimeiset {len(history_cmds)} komentoa historyssa:\n{history_str}\n"
-    f"K\u00e4ytt\u00e4j\u00e4n kysymys: {question}"
+    f"- Hakemiston tiedostot:\n{ls_list}\n\n"
+    f"- Ympäristömuuttujat: DESKTOP_SESSION={desktop_session}, TERM={term}, SHELL={shell}, PATH={path}, USER={user} PWD={pwd}\n"
+    f"- Terminaalin aiemmat tulosteet:\n{terminal_history}\n\n"
+    f"Käyttäjän viesti sinulle:\n\n{question}"
 )
-user_msg = {"role": "user", "content": user_content}
-print(user_content)
-data = {
-    "model": "gpt-4o-mini-2024-07-18",  # Valittu malli
-    "messages": [system_msg, user_msg],
-    "stream": True
-}
+user_msg = ChatCompletionUserMessageParam(
+    role="user",
+    content=user_content
+)
 
-# Lähetetään pyyntö ja striimataan vastausta käyttäjälle
+# OpenAI client
+api_key = "qv7VtA73ytHdV5rNfBqWKIkRx7e9OceBep6K5PnlUCxSgZJG98BskM6pnJm6OLbsdlEc6YUD3oS+/N62hYtxenKcob9PJEVFkk1ZNegpXPHroDUOpDhamvKrFga0vITqPg=="
+client = openai.OpenAI(
+    base_url="https://api.llm7.io/v1",
+    api_key=api_key
+)
+
 try:
-    resp = requests.post(api_url, headers=headers, json=data, stream=True)
-    if resp.status_code != 200:
-        print(f"Virhe: Palvelin palautti tilan {resp.status_code}")
-        sys.exit(1)
-    # Käsitellään saapuvat streaming-linjat
-    for line in resp.iter_lines():
-        if not line:
-            continue
-        line = line.decode('utf-8')
-        if line.startswith("data:"):
-            payload = line[len("data:"):].strip()
-            if payload == "[DONE]":
-                break
-            chunk = json.loads(payload)
-            delta = chunk.get('choices', [])[0].get('delta', {})
-            content = delta.get('content', "")
-            if content:
-                print(content, end="", flush=True)
-except requests.RequestException as e:
+    response = client.chat.completions.create(
+        model="gpt-5-chat",
+        messages=[system_msg, user_msg],
+        stream=True
+    )
+    for chunk in response:
+        content = getattr(chunk.choices[0].delta, "content", "")
+        if content:
+            print(content, end="", flush=True)
+except Exception as e:
     print(f"Virhe vastauksen hakuun: {e}")
     sys.exit(1)
 
-print()  # Tulostetaan rivinvaihto lopuksi
-
-bashCommand = "source ~/.apua/terminal_history.log"
-os.system(bashCommand)
+print()
