@@ -9,24 +9,25 @@
 
     mkdir -p "$LOGDIR"
 
-    if ! grep -q "BEGIN_TERMINAL_LOGGING" "$BASHRC" 2>/dev/null; then
-        cat <<'EOF' >> "$BASHRC"
+    # Poista vanha terminal-logging-lohko, jos sellainen löytyy
+    if grep -q "BEGIN_TERMINAL_LOGGING" "$BASHRC" 2>/dev/null; then
+            # Poista kaikki rivit BEGIN...END -väliltä (mukaan lukien)
+            sed -i '/BEGIN_TERMINAL_LOGGING/,/END_TERMINAL_LOGGING/d' "$BASHRC"
+    fi
+    # Lisää uusi lohko
+    cat <<'EOF' >> "$BASHRC"
 # === BEGIN_TERMINAL_LOGGING ===
 # Tallentaa kaikki terminaalin tulosteet ~/.apua/terminal_history.log tiedostoon
-# Säilyttää vain viimeiset 60 riviä.
 if [[ -z $SCRIPT ]]; then
-  LOGDIR="$HOME/.apua"
-  mkdir -p "$LOGDIR"
-  LOGFILE="$LOGDIR/terminal_history.log"
-  export SCRIPT=$LOGFILE
-  script "$SCRIPT"
-  echo "📜 Lokitus käynnistyy → $LOGFILE"
+    LOGDIR="$HOME/.apua"
+    mkdir -p "$LOGDIR"
+    LOGFILE="$LOGDIR/terminal_history.log"
+    export SCRIPT=$LOGFILE
+    script -q -f "$SCRIPT"
 fi
-tail -n 60 "$LOGFILE" > "$LOGFILE.tmp" && mv "$LOGFILE.tmp" "$LOGFILE"
 # === END_TERMINAL_LOGGING ===
 EOF
-        echo "✅ Terminal-lokitus otettu käyttöön (~/.bashrc päivitetty)."
-    fi
+    echo "✅ Terminal-lokitus otettu käyttöön (~/.bashrc päivitetty)."
 } >/dev/null 2>&1
 # --- END AUTO-INSTALL TERMINAL LOGGING ---
 
@@ -36,19 +37,19 @@ echo "🚀 Asennetaan 'apua' AI komentoriviavustaja!"
 # Tarkista Python3
 if ! command -v python3 > /dev/null; then
     echo "🐍 Python3 puuttuu, asennetaan..."
-    sudo apt-get update && sudo apt-get install -y python3 > /dev/null || { echo "❌ Python3-asennus epäonnistui"; exit 1; }
+    sudo apt-get update && sudo apt-get install -y python3 || { echo "❌ Python3-asennus epäonnistui"; exit 1; }
 fi
 
 # Tarkista pip3
 if ! command -v pip3 > /dev/null; then
     echo "📦 pip3 puuttuu, asennetaan..."
-    sudo apt-get install -y python3-pip > /dev/null || { echo "❌ pip3-asennus epäonnistui"; exit 1; }
+    sudo apt-get install -y python3-pip || { echo "❌ pip3-asennus epäonnistui"; exit 1; }
 fi
 
 # Asenna Python-kirjasto requests, jos puuttuu
 if ! python3 -c "import requests" &> /dev/null; then
     echo "🔗 Python-kirjasto 'requests' puuttuu, asennetaan..."
-    pip3 install --user requests > /dev/null || { echo "❌ requests-kirjaston asennus epäonnistui"; exit 1; }
+    pip3 install --user requests || { echo "❌ requests-kirjaston asennus epäonnistui"; exit 1; }
 fi
 
 # Kopioi 'apua' skripti ~/.local/bin ja tee suoritettavaksi
@@ -66,7 +67,7 @@ else
     shell_profile="$HOME/.profile"
 fi
 
-# Päivitä .bashrc tai .profile
+# Päivitä .bashrc
 if ! grep -q 'export PATH=.*\$HOME/.local/bin' "$shell_profile" &> /dev/null; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$shell_profile"
 fi

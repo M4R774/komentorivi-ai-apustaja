@@ -42,6 +42,7 @@ import subprocess
 import re
 from collections import deque
 import requests
+import distro
 
 # Get terminal output
 def get_terminal_output_history(filepath: str, rows: int = 50) -> str:
@@ -86,6 +87,7 @@ system_msg = {
 }
 user_content = (
     f"Konteksti:\n"
+    f"- Linux Distro: {distro.name()} {distro.version()}\n"
     f"- Hakemiston tiedostot:\n{ls_list}\n\n"
     f"- Ympäristömuuttujat: SHELL={shell}, PWD={pwd}\n"
     f"- Terminaalin aiemmat tulosteet:\n{terminal_history}\n\n"
