@@ -47,13 +47,3 @@ Aja asennuskomento uudelleen, niin bashrc-lokituslohko ja "apua"-komento päivit
 	```bash
 	rm ~/.local/bin/apua
 	```
-
-3. (Vapaaehtoinen) Poista Python ja pip, jos et tarvitse niitä muuhun:
-
-	Ubuntu/Debian:
-	```bash
-	sudo apt-get remove --purge python3 python3-pip
-	sudo apt-get autoremove
-	```
-
-	Huom! Python voi olla tarpeellinen monille järjestelmän osille, joten poista se vain jos tiedät mitä olet tekemässä.
