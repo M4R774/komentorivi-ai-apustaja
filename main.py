@@ -17,7 +17,33 @@ calm_messages = [
     "🌙 Maltti on valttia, hetkinen vain..."
     "👀 Lepuuta hetki silmiäsi. Mietin...",
     "☕ Oota mä juon ensin kahvini loppuun...",
-    "🍺 Ota olut ja rentoudu..."
+    "🍺 Ota olut ja rentoudu...",
+    "🍵 Ota tee ja rauhoitu...",
+    "🍫 Tilanne vaatii suklaata...",
+    "🧦 Vedä villasukat jalkaan, mulla menee hetki...",
+    "🦉 Viisas pöllökin miettii rauhassa...",
+    "🦔 Siili ei kiirehdi, eikä sunkaan tarvi...",
+    "🧃 Ota mehu ja chillaa...",
+    "🧀 Juusto ei sula stressistä, älä sinäkään...",
+    "🧊 Yritetään pitää pää kylmänä...",
+    "💻 Take it iisi in the tietokonekriisi...",
+    "🪖 Ei tilanne ole koskaan paha...",
+    "🪑 Pitääpä istua ihan alas miettimään...",
+    "🐢 Hitaasti hyvä tulee... tai ainakin jotain tulee.",
+    "🔥 Ei hätää, ei vielä savua.",
+    "🎩 Taikatemppu latautuu... tai virheviesti.",
+    "🧙 Koodi on taikuutta, ja mä oon just selaamassa loitsukirjaa.",
+    "🥶 Älä jäädy, mä selvitän tän.",
+    "🍕 Pizza auttaa kaikkeen, mutta kokeillaan tätä ensin...",
+    "🛠️  Työstän ratkaisua...",
+    "🔍 Etsin ratkaisua...",
+    "👁️  Hallusinoidaan vastausta...",
+    "💸 Aika on rahaa, ja tämä sovellus on ilmainen...",
+    "💡 Hitto mites tää nyt menikään...",
+    "🤖 Analysoin, lasken, arvaan... siinä järjestyksessä.",
+    "📚 Konsultoin pyhiä dokumentaatioita...",
+    "🔮 Näen tulevaisuuden, jossa kaikki toimii...",
+    "🧴 Sivelin vähän kärsivällisyysvoidetta, jatketaan...",
 ]
 message = random.choice(calm_messages)
 spinner = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚']
@@ -26,11 +52,40 @@ spinner = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗
 def spinner_func(stop_event):
     import sys
     spin_idx = 0
+    bar_length = 16
+    bar_symbols = ['░', '▒', '▓', '█']
+    phase = 0
+    progress = 0
+    # Animate message one character at a time
+    animated_message = ''
+    msg_idx = 0
+    msg_done = False
     while not stop_event.is_set():
-        print(f"\r{message}  {spinner[spin_idx % len(spinner)]}  ", end="")
+        if not msg_done:
+            if msg_idx < len(message):
+                animated_message += message[msg_idx]
+                msg_idx += 1
+            else:
+                msg_done = True
+            display_message = animated_message
+            print(f"\r{display_message}", end="")
+            sys.stdout.flush()
+            time.sleep(0.08)
+            continue
+        else:
+            display_message = message
+        if progress >= bar_length:
+            progress = 0
+            phase = (phase + 1) % 4
+        filled_symbol = bar_symbols[(phase + 1) % 4]
+        bar = filled_symbol * (progress)
+        empty_symbol = bar_symbols[phase]
+        bar = bar + empty_symbol * (bar_length - progress)
+        print(f"\r{display_message}  {spinner[spin_idx % len(spinner)]}  [{bar}]  ", end="")
         sys.stdout.flush()
+        progress += 1
         spin_idx += 1
-        time.sleep(0.1)
+        time.sleep(0.05 if not msg_done else 0.1)
 stop_event = threading.Event()
 spinner_thread = threading.Thread(target=spinner_func, args=(stop_event,), daemon=True)
 spinner_thread.start()
