@@ -72,10 +72,8 @@ pwd = os.environ.get('PWD', '')
 
 # Prompt
 api_url = "https://api.llm7.io/v1/chat/completions"
-api_key = "qv7VtA73ytHdV5rNfBqWKIkRx7e9OceBep6K5PnlUCxSgZJG98BskM6pnJm6OLbsdlEc6YUD3oS+/N62hYtxenKcob9PJEVFkk1ZNegpXPHroDUOpDhamvKrFga0vITqPg=="
 headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {api_key}",
     "Accept": "text/event-stream"
 }
 system_msg = {

@@ -1,37 +1,6 @@
 #!/bin/bash
 # Asennusskripti komentorivisovellus 'apua'lle
 
-# --- BEGIN AUTO-INSTALL TERMINAL LOGGING ---
-{
-    BASHRC="$HOME/.bashrc"
-    LOGDIR="$HOME/.apua"
-    LOGFILE="$LOGDIR/terminal_history.log"
-
-    mkdir -p "$LOGDIR"
-
-    # Poista vanha terminal-logging-lohko, jos sellainen löytyy
-    if grep -q "BEGIN_TERMINAL_LOGGING" "$BASHRC" 2>/dev/null; then
-            # Poista kaikki rivit BEGIN...END -väliltä (mukaan lukien)
-            sed -i '/BEGIN_TERMINAL_LOGGING/,/END_TERMINAL_LOGGING/d' "$BASHRC"
-    fi
-    # Lisää uusi lohko
-    cat <<'EOF' >> "$BASHRC"
-# === BEGIN_TERMINAL_LOGGING ===
-# Tallentaa kaikki terminaalin tulosteet ~/.apua/terminal_history.log tiedostoon
-if [[ -z $SCRIPT ]]; then
-    LOGDIR="$HOME/.apua"
-    mkdir -p "$LOGDIR"
-    LOGFILE="$LOGDIR/terminal_history.log"
-    export SCRIPT=$LOGFILE
-    script -q -f "$SCRIPT"
-fi
-# === END_TERMINAL_LOGGING ===
-EOF
-    echo "✅ Terminal-lokitus otettu käyttöön (~/.bashrc päivitetty)."
-} >/dev/null 2>&1
-# --- END AUTO-INSTALL TERMINAL LOGGING ---
-
-
 echo "🚀 Asennetaan 'apua' AI komentoriviavustaja!"
 
 # Tarkista Python3
@@ -67,10 +36,36 @@ else
     shell_profile="$HOME/.profile"
 fi
 
+BASHRC="$HOME/.bashrc"
+LOGDIR="$HOME/.apua"
+LOGFILE="$LOGDIR/terminal_history.log"
+
+mkdir -p "$LOGDIR"
+
+# Poista vanha terminal-logging-lohko, jos sellainen löytyy
+if grep -q "BEGIN_TERMINAL_LOGGING" "$BASHRC" 2>/dev/null; then
+    # Poista kaikki rivit BEGIN...END -väliltä (mukaan lukien)
+    sed -i '/BEGIN_TERMINAL_LOGGING/,/END_TERMINAL_LOGGING/d' "$BASHRC"
+fi
+# Lisää uusi lohko
+cat <<'EOF' >> "$BASHRC"
+# === BEGIN_TERMINAL_LOGGING ===
+# Tallentaa kaikki terminaalin tulosteet ~/.apua/terminal_history.log tiedostoon
+if [[ -z $SCRIPT ]]; then
+    LOGDIR="$HOME/.apua"
+    mkdir -p "$LOGDIR"
+    LOGFILE="$LOGDIR/terminal_history.log"
+    export SCRIPT=$LOGFILE
+    script -q -f "$SCRIPT"
+fi
+# === END_TERMINAL_LOGGING ===
+EOF
+
 # Päivitä .bashrc
 if ! grep -q 'export PATH=.*\$HOME/.local/bin' "$shell_profile" &> /dev/null; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$shell_profile"
 fi
+echo "✅ PATH-muutos ja script-lokitus lisätty profiilitiedostoon: $shell_profile"
 
 # Yritetään automatisoida PATH-muutoksen voimaantulo
 if [[ $- == *i* ]] && [ -n "$BASH_VERSION" ]; then
