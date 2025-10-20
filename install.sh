@@ -53,6 +53,8 @@ if [[ -z $SCRIPT ]]; then
     LOGDIR="$HOME/.apua"
     mkdir -p "$LOGDIR"
     LOGFILE="$LOGDIR/terminal_history.log"
+    rm -f "$LOGFILE"
+    touch "$LOGFILE"
     export SCRIPT=$LOGFILE
     script -q -f "$SCRIPT"
 fi
