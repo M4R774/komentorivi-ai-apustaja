@@ -18,6 +18,8 @@ Asennusskripti:
 - Lisää `~/.local/bin` automaattisesti PATH:iin, jos sitä ei vielä ole
 - Lisää bashrc:iin (tai vastaavaan) terminaalilokituslohkon
 
+Pro tip: Voit käydä hakemassa **ilmaisen** API-tokenin osoitteesta llm7.io ja asettaa sen tiedostoon `~/.apua/api_token.txt` niin AI saattaa vastata nopeammin!
+
 ## Jos asennus epäonnistuu
 
 Asennusskripti ja itse sovellus tarvitsee toimiakseen seuraavat:
