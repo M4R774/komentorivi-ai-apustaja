@@ -36,19 +36,17 @@ else
     shell_profile="$HOME/.profile"
 fi
 
-BASHRC="$HOME/.bashrc"
 LOGDIR="$HOME/.apua"
 LOGFILE="$LOGDIR/terminal_history.log"
-
 mkdir -p "$LOGDIR"
 
 # Poista vanha terminal-logging-lohko, jos sellainen löytyy
-if grep -q "BEGIN_TERMINAL_LOGGING" "$BASHRC" 2>/dev/null; then
+if grep -q "BEGIN_TERMINAL_LOGGING" "$shell_profile" 2>/dev/null; then
     # Poista kaikki rivit BEGIN...END -väliltä (mukaan lukien)
-    sed -i '/BEGIN_TERMINAL_LOGGING/,/END_TERMINAL_LOGGING/d' "$BASHRC"
+    sed -i '/BEGIN_TERMINAL_LOGGING/,/END_TERMINAL_LOGGING/d' "$shell_profile"
 fi
 # Lisää uusi lohko
-cat <<'EOF' >> "$BASHRC"
+cat <<'EOF' >> "$shell_profile"
 # === BEGIN_TERMINAL_LOGGING ===
 # Tallentaa kaikki terminaalin tulosteet ~/.apua/terminal_history.log tiedostoon
 if [[ -z $SCRIPT ]]; then

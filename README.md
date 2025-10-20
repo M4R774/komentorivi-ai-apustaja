@@ -1,6 +1,8 @@
 # komentorivi-ai-apustaja
 
-"apua" on komentorivin tekoälyavustaja, joka auttaa ymmärtämään komentoja ja antaa neuvoja suoraan terminaalissa.
+"apua" on komentorivin tekoälyavustaja, joka auttaa ymmärtämään komentoja ja
+antaa neuvoja suoraan terminaalissa. Asennusskripti on testattu toimivaksi
+Linux Mintin versiolla 22.2. 
 
 ## Asennus
 
@@ -15,6 +17,22 @@ Asennusskripti:
 - Lataa "apua"-komentoskriptin hakemistoon `~/.local/bin/apua`
 - Lisää `~/.local/bin` automaattisesti PATH:iin, jos sitä ei vielä ole
 - Lisää bashrc:iin (tai vastaavaan) terminaalilokituslohkon
+
+## Jos asennus epäonnistuu
+
+Asennusskripti ja itse sovellus tarvitsee toimiakseen seuraavat:
+- Bash
+- Curl
+- Python3
+- Requests Python kirjaston
+
+Jos asennusscripti epäonnistuu esimerkiksi Requests kirjaston asentamiseen,
+voit yrittää asentaa sen manuaalisesti aptilla (tai vastaavalla).
+
+```bash
+sudo apt update
+sudo apt install python3-requests
+```
 
 ## Käyttö
 
