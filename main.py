@@ -14,7 +14,7 @@ calm_messages = [
     "🌼 Hei, mä tiiän tän! Eiku hmmm...",
     "🍃 Rauhotu saatana, se on vaa tietokone...",
     "🛋️ Ota pieni hengähdystauko, kyl se siitä...",
-    "🌙 Maltti on valttia, hetkinen vain..."
+    "🌙 Maltti on valttia, hetkinen vain...",
     "👀 Lepuuta hetki silmiäsi. Mietin...",
     "☕ Oota mä juon ensin kahvini loppuun...",
     "🍺 Ota olut ja rentoudu...",
@@ -70,7 +70,7 @@ def spinner_func(stop_event):
             display_message = animated_message
             print(f"\r{display_message}", end="")
             sys.stdout.flush()
-            time.sleep(0.08)
+            time.sleep(0.07)
             continue
         else:
             display_message = message
@@ -85,7 +85,7 @@ def spinner_func(stop_event):
         sys.stdout.flush()
         progress += 1
         spin_idx += 1
-        time.sleep(0.05 if not msg_done else 0.1)
+        time.sleep(0.15)
 stop_event = threading.Event()
 spinner_thread = threading.Thread(target=spinner_func, args=(stop_event,), daemon=True)
 spinner_thread.start()
@@ -131,6 +131,11 @@ headers = {
     "Content-Type": "application/json",
     "Accept": "text/event-stream"
 }
+token_path = os.path.expanduser('~/.apua/api_token.txt')
+if os.path.exists(token_path):
+    with open(token_path, 'r') as tiedosto:
+        token = tiedosto.read().strip()
+    headers['Authorization'] = f'Bearer {token}'
 system_msg = {
     "role": "system",
     "content": (
@@ -174,7 +179,7 @@ try:
                 if not got_content:
                     stop_event.set()
                     # Poista spinneri peittämällä se tarpeeksi pitkällä rivillä
-                    print("\r" + " " * 60 + "\r", end="")
+                    print("\r" + " " * 90 + "\r", end="")
                     sys.stdout.flush()
                     got_content = True
                 print(content, end="", flush=True)

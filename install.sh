@@ -73,9 +73,9 @@ if [[ $- == *i* ]] && [ -n "$BASH_VERSION" ]; then
     source "$shell_profile"
     echo "✅ Kaikki on valmista! 'apua' komento on nyt käytettävissä. 🎉"
 else
-    echo "✅ Asennus valmis!"
+    echo "✅ Asennus on valmis! 🎉"
     echo ""
-    echo "⚠️  HUOM! 'apua' komento on käytettävissä vasta kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️"
+    echo -e "\033[33m⚠️  HUOM! 'apua' komento on käytettävissä vasta kun avaat uuden terminaalin tai suoritat 'source $shell_profile'. ⚠️\033[0m"
     echo ""
 fi
 
@@ -84,3 +84,4 @@ echo "💡 Käyttö:"
 echo "- Kirjoita vain 'apua' ja tekoäly vastaa!"
 echo "- Voit myös antaa lisätietoja esim.: 'apua mitä tapahtuu? 🆘'"
 echo "- Tekoäly saa automaattisesti ruudulla näkyvän komentorivihistorian, nykyisen työskentelykansion, aiemmin suoritetut komentorivikomennot ja yleisiä tietoja järjestelmän tilasta kontekstiksi."
+echo "- Pro tip: Voit käydä hakemassa ilmaisen API-tokenin osoitteesta llm7.io ja asettaa sen tiedostoon ~/.apua/api_token.txt niin AI saattaa vastata nopeammin!"
