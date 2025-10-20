@@ -1,5 +1,7 @@
 # komentorivi-ai-apustaja
 
+> "Sä oot oikeestaan keksinyt 2020 luvun komentorivin. Näinhän sen pitäis toimia."
+
 "apua" on komentorivin tekoälyavustaja, joka auttaa ymmärtämään komentoja ja
 antaa neuvoja suoraan terminaalissa. Asennusskripti on testattu toimivaksi
 Linux Mintin versiolla 22.2. 
