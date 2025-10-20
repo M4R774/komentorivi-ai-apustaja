@@ -25,7 +25,7 @@ fi
 mkdir -p "$HOME/.local/bin"
 curl -fsSL https://raw.githubusercontent.com/M4R774/komentorivi-ai-apustaja/refs/heads/main/main.py -o "$HOME/.local/bin/apua"
 chmod +x "$HOME/.local/bin/apua"
-echo "✅ 'apua' komento ladattu hakemistoon ~/.local/bin/apua"
+echo "🛠️ 'apua' komento ladattu hakemistoon ~/.local/bin/apua"
 
 # Lisää ~/.local/bin PATHiin, jos ei jo ole
 if [ -n "$BASH_VERSION" ]; then
@@ -65,7 +65,7 @@ EOF
 if ! grep -q 'export PATH=.*\$HOME/.local/bin' "$shell_profile" &> /dev/null; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$shell_profile"
 fi
-echo "✅ PATH-muutos ja script-lokitus lisätty profiilitiedostoon: $shell_profile"
+echo "🤓 PATH-muutos ja script-lokitus lisätty profiilitiedostoon: $shell_profile"
 
 # Yritetään automatisoida PATH-muutoksen voimaantulo
 if [[ $- == *i* ]] && [ -n "$BASH_VERSION" ]; then
