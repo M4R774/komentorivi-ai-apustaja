@@ -97,11 +97,21 @@ import subprocess
 import re
 from collections import deque
 import requests
-import distro
+import platform
+
+# Try to import distro (Linux-specific); fall back to platform info if unavailable
+try:
+    import distro
+    _distro_name = f"{distro.name()} {distro.version()}"
+except Exception:
+    _distro_name = f"{platform.system()} {platform.release()}"
 
 # Get terminal output
 def get_terminal_output_history(filepath: str, rows: int = 50) -> str:
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    if not os.path.exists(filepath):
+        print(f"Varoitus: Terminaalin historiaa ei löytynyt polusta {filepath}.")
+        return ""
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         bottom_rows = deque(f, maxlen=rows)
     # Jätetään 2 viimeisintä riviä pois
@@ -126,26 +136,21 @@ shell = os.environ.get('SHELL', '')
 pwd = os.environ.get('PWD', '')
 
 # Prompt
-api_url = "https://api.llm7.io/v1/chat/completions"
+api_url = "http://127.0.0.1:11434/v1/chat/completions"
 headers = {
     "Content-Type": "application/json",
     "Accept": "text/event-stream"
 }
-token_path = os.path.expanduser('~/.apua/api_token.txt')
-if os.path.exists(token_path):
-    with open(token_path, 'r') as tiedosto:
-        token = tiedosto.read().strip()
-    headers['Authorization'] = f'Bearer {token}'
 system_msg = {
     "role": "system",
     "content": (
-        "Olet Linux komentorivillä toimiva 'apua' tekoälysovellus, joka avustaa aloittelevaa käyttäjää komentorivin käytössä.\n\n"
-        "Auta käyttäjää etenemään. Vastaa mahdollisimman lyhyesti. Markdown muotoilu EI käytössä. Et pysty suorittamaan komentoja itsenäisesti. Selkeytä vastaustasi emojilla."
+        "Olet komentorivillä toimiva 'apua' tekoälysovellus, joka avustaa aloittelevaa käyttäjää komentorivin käytössä.\n\n"
+        "Auta käyttäjää etenemään. Vastaa mahdollisimman lyhyesti. Markdown-muotoilu EI käytössä. Et pysty suorittamaan komentoja itsenäisesti. Selkeytä vastaustasi emojilla."
     )
 }
 user_content = (
     f"Konteksti:\n"
-    f"- Linux Distro: {distro.name()} {distro.version()}\n"
+    f"- Platform: {_distro_name}\n"
     f"- Hakemiston tiedostot:\n{ls_list}\n\n"
     f"- Ympäristömuuttujat: SHELL={shell}, PWD={pwd}\n"
     f"- Terminaalin aiemmat tulosteet:\n{terminal_history}\n\n"
