@@ -136,7 +136,7 @@ shell = os.environ.get('SHELL', '')
 pwd = os.environ.get('PWD', '')
 
 # Prompt
-api_url = "http://127.0.0.1:11434/v1/chat/completions"
+api_url = "http://localhost:11434/v1/chat/completions"
 headers = {
     "Content-Type": "application/json",
     "Accept": "text/event-stream"
@@ -158,7 +158,7 @@ user_content = (
 )
 user_msg = {"role": "user", "content": user_content}
 data = {
-    "model": "gpt-5-mini",
+    "model": "qwen3-coder:30b",
     "messages": [system_msg, user_msg],
     "stream": True,
 }
