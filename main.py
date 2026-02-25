@@ -158,7 +158,7 @@ user_content = (
 )
 user_msg = {"role": "user", "content": user_content}
 data = {
-    "model": "qwen3-coder:30b",
+    "model": "gpt-oss:20b",
     "messages": [system_msg, user_msg],
     "stream": True,
 }
